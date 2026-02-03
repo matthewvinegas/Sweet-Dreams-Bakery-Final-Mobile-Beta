@@ -1,0 +1,391 @@
+/* Home Screen */
+#home-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: url("Monika.png") no-repeat center center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    padding: 20px;
+}
+
+.menu-button {
+    width: min(200px, 80vw);
+    height: 60px;
+    font-size: clamp(18px, 5vw, 24px);
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    font-family: Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    touch-action: manipulation;
+}
+
+.menu-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+#exit-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Game Screen */
+#game-screen {
+    padding: 10px;
+    min-height: 100vh;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    margin: 0 auto 10px;
+    padding: 0 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.game-header h1 {
+    margin: 0;
+    font-size: clamp(20px, 5vw, 28px);
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+    color: #00ff00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.score-board {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 2px solid #667eea;
+    font-size: clamp(12px, 3vw, 14px);
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.score-label {
+    font-weight: bold;
+    color: #667eea;
+}
+
+#score-display, #high-score-display {
+    font-weight: bold;
+    color: #764ba2;
+    min-width: 40px;
+    text-align: right;
+}
+
+.exit-game-btn {
+    padding: 8px 16px;
+    font-size: clamp(14px, 3.5vw, 16px);
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: 2px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    touch-action: manipulation;
+}
+
+.exit-game-btn:active {
+    transform: scale(0.95);
+}
+
+/* Goals Container */
+.goals-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px auto;
+    max-width: 100%;
+    padding: 0 10px;
+}
+
+.goal-item {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #764ba2;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    min-width: min-content;
+}
+
+.goal-item img {
+    width: clamp(30px, 8vw, 40px);
+    height: clamp(30px, 8vw, 40px);
+}
+
+.goal-count {
+    font-size: clamp(18px, 5vw, 24px);
+    font-weight: bold;
+    color: #764ba2;
+    min-width: 35px;
+}
+
+.goal-item.completed {
+    background: rgba(144, 238, 144, 0.9);
+    border-color: #28a745;
+}
+
+.goal-item.completed .goal-count {
+    color: #28a745;
+}
+
+body {
+    background: url("./background.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(237, 183, 57);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#message {
+    color: #00ff00;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 10px 0;
+}
+
+#board {
+    width: min(450px, 95vw);
+    height: min(450px, 95vw);
+    background: url("tray.png") no-repeat center center;  
+    background-size: cover;
+    margin: 10px auto;
+    display: flex;
+    flex-wrap: wrap;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#board img {
+    width: calc(min(450px, 95vw) / 9);
+    height: calc(min(450px, 95vw) / 9);
+    transition: all 0.3s ease;
+    touch-action: none;
+    -webkit-user-drag: none;
+}
+
+/* Falling animation */
+@keyframes fall {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#board img.falling {
+    animation: fall 0.5s ease-out;
+}
+
+/* Pop animation */
+@keyframes pop {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5) rotate(10deg);
+        opacity: 0.8;
+        filter: brightness(1.5);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+#board img.popping {
+    animation: pop 0.4s ease-out forwards;
+    z-index: 10;
+}
+
+/* Explosion effect */
+@keyframes explode {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+        filter: brightness(1) saturate(1) blur(0px);
+    }
+    20% {
+        transform: scale(1.5) rotate(90deg);
+        opacity: 1;
+        filter: brightness(3) saturate(3) blur(0px);
+    }
+    50% {
+        transform: scale(2.5) rotate(180deg);
+        opacity: 0.8;
+        filter: brightness(5) saturate(5) blur(2px);
+        box-shadow: 0 0 30px rgba(255, 255, 100, 1),
+                    0 0 60px rgba(255, 100, 100, 0.8),
+                    0 0 90px rgba(100, 100, 255, 0.6);
+    }
+    100% {
+        transform: scale(4) rotate(360deg);
+        opacity: 0;
+        filter: brightness(8) saturate(8) blur(5px);
+        box-shadow: 0 0 50px rgba(255, 255, 255, 0);
+    }
+}
+
+#board img.exploding {
+    animation: explode 0.8s ease-out forwards;
+    z-index: 100;
+}
+
+/* Special striped activation effect */
+@keyframes striped-blast {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1) saturate(1);
+    }
+    30% {
+        transform: scale(1.3);
+        opacity: 1;
+        filter: brightness(2) saturate(2);
+        box-shadow: 0 0 20px rgba(255, 200, 50, 1);
+    }
+    100% {
+        transform: scale(0.5);
+        opacity: 0;
+        filter: brightness(3) saturate(3);
+    }
+}
+
+#board img.striped-blasting {
+    animation: striped-blast 0.5s ease-out forwards;
+    z-index: 50;
+}
+
+/* Wrapped explosion effect */
+@keyframes wrapped-boom {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    40% {
+        transform: scale(2) rotate(180deg);
+        opacity: 1;
+        filter: brightness(4) saturate(3);
+        box-shadow: 0 0 40px rgba(255, 150, 255, 1);
+    }
+    100% {
+        transform: scale(3) rotate(360deg);
+        opacity: 0;
+        filter: brightness(6);
+    }
+}
+
+#board img.wrapped-booming {
+    animation: wrapped-boom 0.6s ease-out forwards;
+    z-index: 75;
+}
+
+/* Chocolate explosion */
+@keyframes choco-burst {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1) saturate(1);
+    }
+    25% {
+        transform: scale(1.8);
+        opacity: 1;
+        filter: brightness(3) saturate(2);
+        box-shadow: 0 0 50px rgba(139, 69, 19, 1),
+                    0 0 80px rgba(210, 105, 30, 0.8);
+    }
+    60% {
+        transform: scale(3);
+        opacity: 0.6;
+        filter: brightness(5) saturate(3);
+    }
+    100% {
+        transform: scale(5);
+        opacity: 0;
+        filter: brightness(8);
+    }
+}
+
+#board img.choco-bursting {
+    animation: choco-burst 0.9s ease-out forwards;
+    z-index: 150;
+}
+
+/* Glow effect for special candies */
+@keyframes glow {
+    0%, 100% {
+        filter: brightness(1) drop-shadow(0 0 2px rgba(255,255,255,0.5));
+    }
+    50% {
+        filter: brightness(1.3) drop-shadow(0 0 8px rgba(255,255,255,0.8));
+    }
+}
+
+#board img[src*="Striped"],
+#board img[src*="Wrapped"],
+#board img[src*="Choco"] {
+    animation: glow 1.5s ease-in-out infinite;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .score-board {
+        order: -1;
+        width: 100%;
+        max-width: 200px;
+    }
+}
