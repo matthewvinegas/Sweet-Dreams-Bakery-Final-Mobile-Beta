@@ -5,9 +5,36 @@ var columns = 9;
 var level = 1;
 var score = 0;
 var highScore = 0;
+var moves = 30; // Number of moves per level
+var maxMoves = 30; // Max moves for each level
 var gameOver = false;
 var currTile;
 var otherTile;
+
+// Order tray system
+var candiesDestroyed = 0; // Counter for destroyed candies
+var orderTraySpecials = []; // Current special candies on tray
+var specialCandyTypes = [
+    "Blue-Striped-Horizontal",
+    "Blue-Striped-Vertical",
+    "Red-Striped-Horizontal",
+    "Red-Striped-Vertical",
+    "Green-Striped-Horizontal",
+    "Green-Striped-Vertical",
+    "Yellow-Striped-Horizontal",
+    "Yellow-Striped-Vertical",
+    "Orange-Striped-Horizontal",
+    "Orange-Striped-Vertical",
+    "Purple-Striped-Horizontal",
+    "Purple-Striped-Vertical",
+    "Blue-Wrapped",
+    "Red-Wrapped",
+    "Green-Wrapped",
+    "Yellow-Wrapped",
+    "Orange-Wrapped",
+    "Purple-Wrapped",
+    "Choco"
+];
 
 // Level goals - each level specifies which candies to collect and how many
 var levelGoals = [
@@ -89,13 +116,28 @@ function setupLevel() {
         collectedCandies[candy] = 0;
     }
     
+    // Reset moves for new level
+    moves = maxMoves;
+    candiesDestroyed = 0;
+    
     updateDisplay();
+    updateOrderTray(); // Initialize with random special candies
+    updateProgressBar();
 }
 
 function updateDisplay() {
     document.getElementById("level-display").innerText = level;
     document.getElementById("score-display").innerText = score;
     document.getElementById("high-score-display").innerText = highScore;
+    document.getElementById("moves-display").innerText = moves;
+    
+    // Highlight moves in red when low (5 or fewer)
+    let movesDisplay = document.getElementById("moves-display");
+    if (moves <= 5) {
+        movesDisplay.classList.add("low-moves");
+    } else {
+        movesDisplay.classList.remove("low-moves");
+    }
     
     var goalsContainer = document.getElementById("goals-container");
     goalsContainer.innerHTML = "";
@@ -250,6 +292,11 @@ function touchEnd(e) {
             // Swap back
             currTile.src = currImg;
             otherTile.src = otherImg;
+        } else {
+            // Valid move - decrease moves counter
+            moves--;
+            updateDisplay();
+            checkMovesRemaining();
         }
     }
     
@@ -297,6 +344,12 @@ function collectCandy(candyColor, amount) {
     }
     
     score += amount * 10;
+    
+    // Track destroyed candies for order tray progress
+    for (let i = 0; i < amount; i++) {
+        trackDestroyedCandy();
+    }
+    
     updateDisplay();
 }
 
@@ -350,6 +403,11 @@ function dragEnd() {
             let otherImg = otherTile.src;
             currTile.src = otherImg;
             otherTile.src = currImg;
+        } else {
+            // Valid move - decrease moves counter
+            moves--;
+            updateDisplay();
+            checkMovesRemaining();
         }
     }
 }
@@ -1109,5 +1167,119 @@ function generateCandy() {
                 board[0][c].classList.remove("falling");
             }, 500);
         }
+    }
+}
+
+// ===== ORDER TRAY SYSTEM =====
+
+// Initialize order tray with 1-3 random special candies
+function updateOrderTray() {
+    let trayContainer = document.getElementById("tray-candies");
+    trayContainer.innerHTML = "";
+    
+    // Random number of special candies (1-3)
+    let numSpecials = Math.floor(Math.random() * 3) + 1;
+    orderTraySpecials = [];
+    
+    for (let i = 0; i < numSpecials; i++) {
+        let randomSpecial = specialCandyTypes[Math.floor(Math.random() * specialCandyTypes.length)];
+        orderTraySpecials.push(randomSpecial);
+        
+        let candyImg = document.createElement("img");
+        candyImg.src = "./images/" + randomSpecial + ".png";
+        candyImg.alt = randomSpecial;
+        trayContainer.appendChild(candyImg);
+    }
+}
+
+// Update progress bar
+function updateProgressBar() {
+    let percentage = (candiesDestroyed % 100) / 100 * 100;
+    let progressFill = document.getElementById("order-progress-fill");
+    let progressText = document.getElementById("order-progress-text");
+    
+    progressFill.style.width = percentage + "%";
+    progressText.innerText = (candiesDestroyed % 100) + "/100";
+    
+    // Check if reached 100 candies
+    if (candiesDestroyed > 0 && candiesDestroyed % 100 === 0) {
+        deliverOrderTray();
+    }
+}
+
+// When 100 candies destroyed, shake tray and launch specials onto board
+function deliverOrderTray() {
+    let tray = document.getElementById("order-tray");
+    
+    // Shake animation
+    tray.classList.add("shaking");
+    setTimeout(() => {
+        tray.classList.remove("shaking");
+    }, 500);
+    
+    // Launch each special candy after shake
+    setTimeout(() => {
+        launchSpecialCandies();
+    }, 600);
+}
+
+// Launch special candies from tray to random board positions
+function launchSpecialCandies() {
+    orderTraySpecials.forEach((specialType, index) => {
+        setTimeout(() => {
+            // Find random empty or regular candy position
+            let placed = false;
+            let attempts = 0;
+            
+            while (!placed && attempts < 50) {
+                let r = Math.floor(Math.random() * rows);
+                let c = Math.floor(Math.random() * columns);
+                
+                // Don't replace existing special candies
+                if (!board[r][c].src.includes("Striped") && 
+                    !board[r][c].src.includes("Wrapped") && 
+                    !board[r][c].src.includes("Choco")) {
+                    
+                    // Replace with special candy
+                    board[r][c].src = "./images/" + specialType + ".png";
+                    
+                    // Add visual effect
+                    board[r][c].classList.add("exploding");
+                    setTimeout(() => {
+                        board[r][c].classList.remove("exploding");
+                    }, 800);
+                    
+                    placed = true;
+                }
+                attempts++;
+            }
+        }, index * 200); // Stagger launches
+    });
+    
+    // Generate new tray after all launched
+    setTimeout(() => {
+        updateOrderTray();
+    }, orderTraySpecials.length * 200 + 500);
+}
+
+// Track destroyed candies and update progress
+function trackDestroyedCandy() {
+    candiesDestroyed++;
+    updateProgressBar();
+}
+
+// Check if player ran out of moves
+function checkMovesRemaining() {
+    if (moves <= 0 && !gameOver) {
+        gameOver = true;
+        document.getElementById("message").innerText = "Out of Moves! Restarting Level...";
+        
+        setTimeout(() => {
+            document.getElementById("message").innerText = "";
+            gameOver = false;
+            moves = maxMoves;
+            candiesDestroyed = 0;
+            setupLevel();
+        }, 2000);
     }
 }
